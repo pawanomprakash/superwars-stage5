@@ -152,7 +152,7 @@ class Superwar {
         score[1] += player.wins;
       }
       return acc;
-    },1);
+    },0);
 
     return score;
   };
