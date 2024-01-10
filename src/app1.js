@@ -63,9 +63,9 @@ class Superwar {
       let type = i % 2 == 0 ? 'hero' : 'villain';
       return new Player(i, player, type);
     });
-    this.score=[0,0];
-    // this.strength=[0,0];
-    this.strength={hero:0,villain:0}
+    this.score = { hero: 0, villain: 0 };
+    this.strength = { hero: 0, villain: 0 };
+    this.wins = { hero: 0, villain: 0 };
     Array.from(document.getElementsByClassName('team')).forEach((elem) =>
       elem.addEventListener('click', (e) => {
         this.handleSelection(e.target);
@@ -119,40 +119,48 @@ class Superwar {
   // Progression 1: Check for fight
   isFight = (strength) => {
     // Type your code here
+    if (strength > 0) {
+      return 'clash';
+    } else {
+      return 'peace';
+    }
+
     // return  'clash' or 'peace';
-    if(strength>0)
-    return "clash"
-    else
-    return "peace"
   };
 
   // Fight
   fight = () => {
-    // Filtered the selectedx players and calculate score
+    // Filtered the selected players and calculate score
     // Should return HTML element with score
     // Type your code here
+
+    let score = this.calculateScore();
+
+    let finalScore = document.getElementById('score');
+    finalScore.innerHTML = '1 - 0';
+
     if (this.checkWin() !== 'endure')
       setTimeout(() => this.announceWinner(score), 100);
-    document.getElementById('score').innerHTML = '1 - 0';
 
+    return finalScore;
   };
 
   // Progression 2: Calculate score
   calculateScore = () => {
     // Calculate and return the total score of teams
     // Type your code here
-    let changeWinner=this.updateWin();
-    let score=this.score;
-    this.players.reduce((acc,player)=>{
-      if(player.type=='hero') {
-        player.win=changeWinner[0];
-        score[0] += player.wins;
-      }else{
-        player.win=changeWinner[1];
-        score[1] += player.wins;
+
+    let setWinner = this.updateWin();
+    let score = this.score;
+    this.players.map((player) => {
+      if (player.type == 'hero') {
+        player.win = setWinner['hero'];
+        score['hero'] += player.wins;
+      } else {
+        player.win = setWinner['villain'];
+        score['villain'] += player.wins;
       }
-      return acc;
-    },1);
+    });
 
     return score;
   };
@@ -162,30 +170,35 @@ class Superwar {
     // Find the winner if exists return type hero or villain
     // If winner dosen't exists then return endure
     // Type your code here
-    let winner = "endure";
+
+    let result = 'endure';
     let health = {
-      hero: this.totalStrength("hero"),
-      villain: this.totalStrength("villain"),
+      hero: this.totalStrength('hero'),
+      villain: this.totalStrength('villain'),
     };
 
-    winner = health.hero>health.villain? "hero":
-        health.hero == health.villain? "endure":"villain";
+    result =
+      health['hero'] > health['villain']
+        ? 'hero'
+        : health['hero'] == health['villain']
+        ? 'endure'
+        : 'villain';
 
-    return winner;
+    return result;
   };
+
   updateWin = () => {
-    let winpoints = {hero:0, 
-               villain:0, 
-               draw: 0};
+    let win = { hero: 0, villain: 0, draw: 0 };
     let winner = this.checkWin();
-    if(winner=="hero"){
-      winpoints.hero+=1;
-    }else if(winner=="villain"){
-      winpoints.villain+=1;
-    }else{
-      winpoints.draw+=1;
+    if (winner == 'hero') {
+      win['hero'] += 1;
+    } else if (winner == 'villain') {
+      win['villain'] += 1;
+    } else {
+      win['draw'] += 1;
     }
-    return winpoints;
+
+    return win;
   };
 
   // Progression 4: Find total strength of a team
@@ -193,23 +206,20 @@ class Superwar {
     // Calculate and return the total strength of the team
     // Type your code here
     let strength = this.strength;
-    this.players.map((player) =>{
-      if(player.type==="hero") {
-        strength.hero+=player.strength;
-      } else{
-        strength.villain+=player.strength;
+    this.players.map((player) => {
+      if (player.type == 'hero') {
+        strength['hero'] += player.strength;
+      } else {
+        strength['villain'] += player.strength;
       }
     });
 
     return strength[type];
-
-    // return strength;
   };
-
-
 
   // Announce the winner
   announceWinner = (score) => {
+    console.log(score['hero']);
     if (score['hero'] == score['villain']) alert('Its a draw!');
     else if (score['hero'] > score['villain']) alert('Heroes Win!');
     else alert('Villains Win!');
